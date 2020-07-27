@@ -2,6 +2,8 @@ import os
 
 import requests
 
+os.environ['PYTHONUNBUFFERED'] = '1'
+
 session = requests.Session()
 
 
