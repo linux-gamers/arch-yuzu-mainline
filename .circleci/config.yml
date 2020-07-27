@@ -32,6 +32,7 @@ jobs:
               		\"target_commitish\": \"master\", \
               		\"name\": \"${TAG}\", \
               		\"draft\": false, \
+                    \"body\": "${CIRCLE_BUILD_URL}", \
               		\"prerelease\": false \
             	}" https://${GITHUB_TOKEN}@api.github.com/repos/linux-gamers/arch-yuzu-mainline/releases
             cd .. && mkdir -p ~/.ssh
