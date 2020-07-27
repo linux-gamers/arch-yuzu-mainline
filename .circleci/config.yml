@@ -16,8 +16,4 @@ jobs:
 workflows:
   publish-release:
     jobs:
-      release:
-        filters:
-          branches:
-            only:
-              - ci
+      - release
