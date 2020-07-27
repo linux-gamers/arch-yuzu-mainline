@@ -1,5 +1,6 @@
 import os
 
+print('Importing requests')
 import requests
 
 os.environ['PYTHONUNBUFFERED'] = '1'
@@ -7,6 +8,7 @@ os.environ['PYTHONUNBUFFERED'] = '1'
 session = requests.Session()
 
 
+print('retrieving yuzu releases')
 published_req = session.get('https://{}@api.github.com/repos/yuzu-emu/yuzu-mainline/releases'.format(os.getenv('GITHUB_TOKEN')))
 
 if published_req.status_code == 200:
