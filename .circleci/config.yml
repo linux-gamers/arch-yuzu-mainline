@@ -53,7 +53,7 @@ jobs:
 workflows:
   publish-release:
     jobs:
-      - release
+      release:
         filters:
           branches:
             - ci
