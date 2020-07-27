@@ -12,7 +12,6 @@ jobs:
             git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
             cd arch-yuzu-mainline
             git checkout ci
-            echo "Executing python script"
             TAG=$(python -u check_new_release.py)
             if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; fi
             cd ..
@@ -55,3 +54,6 @@ workflows:
   publish-release:
     jobs:
       - release
+    filters:
+      branches:
+        - ci
