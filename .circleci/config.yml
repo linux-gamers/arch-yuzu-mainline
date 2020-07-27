@@ -6,8 +6,8 @@ jobs:
     steps:
       - run:
           name: Checking for unpublished release
-          command:
-            - git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
-            - TAG=$(python check_new_release.py)
-            - if [ -z "$TAG" ]; then exit 1; fi
-            - git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git ~/yuzu-mainline
+          command: |
+            git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
+            TAG=$(python check_new_release.py)
+            if [ -z "$TAG" ]; then exit 1; fi
+            git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git ~/yuzu-mainline
