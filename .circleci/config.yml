@@ -7,7 +7,7 @@ jobs:
       - run:
           name: Checking for unpublished release
           command: |
-            git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
+            git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git && git checkout ci
             cd arch-yuzu-mainline
             TAG=$(python check_new_release.py)
             if [ -z "$TAG" ]; then exit 1; fi
@@ -16,4 +16,8 @@ jobs:
 workflows:
   publish-release:
     jobs:
-      - release
+      release:
+        filters:
+          branches:
+            only:
+              - ci
