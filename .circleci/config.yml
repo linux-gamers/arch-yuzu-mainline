@@ -13,11 +13,10 @@ jobs:
             - git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git ~/yuzu-mainline
 
 workflows:
-   version: 2
-   test:
-     jobs:
-       - release:
-           filters:
-             branches:
-               only:
-                 - ci
+  version: 2
+    jobs:
+      release:
+        filters:
+          branches:
+            only:
+              - ci
