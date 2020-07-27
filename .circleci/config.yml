@@ -7,13 +7,49 @@ jobs:
       - run:
           name: Checking for unpublished release
           command: |
+            git config --global user.name "${GIT_USER}"
+            git config --global user.email "${GIT_EMAIL}"
             git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
             cd arch-yuzu-mainline
             git checkout ci
             echo "Executing python script"
             TAG=$(python -u check_new_release.py)
-            if [ -z "$TAG" ]; then echo "No release" && exit 1; fi
-            git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git ~/yuzu-mainline
+            if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; fi
+            cd ..
+            git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git
+            cd yuzu-mainline
+            git checkout -b "${TAG}" && mkdir build && cd build
+            cmake .. -GNinja && ninja -j4
+            cd ../../arch-yuzu-mainline && git checkout master
+            /bin/cp ../yuzu-mainline/build/bin/yuzu .
+            /bin/cp ../yuzu-mainline/build/bin/yuzu-cmd .
+            /bin/cp ../yuzu-mainline/dist/yuzu.desktop .
+            /bin/cp ../yuzu-mainline/dist/yuzu.svg .
+            git add .
+            git commit -m "[RELEASE ${TAG}]"
+            git push -q https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git master
+            curl -X POST -H "Content-Type: application/json" -d "{ \
+            		\"tag_name\": \"${TAG}\", \
+              		\"target_commitish\": \"master\", \
+              		\"name\": \"${TAG}\", \
+              		\"draft\": false, \
+              		\"prerelease\": false \
+            	}" https://${GITHUB_TOKEN}@api.github.com/repos/linux-gamers/arch-yuzu-mainline/releases
+            cd .. && mkdir -p ~/.ssh
+            echo "$AUR_SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa && chmod 700 ~/.ssh/id_rsa
+            ssh-keyscan -H 'aur.archlinux.org' >> ~/.ssh/known_hosts
+            eval "$(ssh-agent -s)"
+            ssh-add ~/.ssh/id_rsa
+            git clone ssh://aur@aur.archlinux.org/yuzu-mainline-bin.git && cd yuzu-mainline-bin
+            wget "https://github.com/linux-gamers/arch-yuzu-mainline/archive/${TAG}.tar.gz"
+            VERSION=$(echo ${TAG} | cut -d- -f2)
+            sed -i -E "s/_pkgver=.+/_pkgver=${VERSION}/" PKGBUILD
+            SHA=$(sha512sum ${TAG}.tar.gz | grep -Eo "(\w+)\s" | cut -d" " -f1)
+            sed -i -E "s/sha512sums=.+/sha512sums=\(\'${SHA}\'\)/" PKGBUILD
+            ./gensrc.sh
+            makepkg -Acsmf
+            git commit -am "${TAG}"
+            git push
 
 workflows:
   publish-release:
