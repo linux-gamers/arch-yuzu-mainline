@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  release:
+  publish-release:
     docker:
       - image: linuxgamers/arch-yuzu-build
     steps:
@@ -15,7 +15,8 @@ jobs:
 workflows:
   version: 2
     jobs:
-      release:
-        branches:
-          only:
-            - ci
+      publish-release:
+        filters:
+          branches:
+            only:
+              - ci
