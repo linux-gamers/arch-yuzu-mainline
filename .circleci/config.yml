@@ -54,6 +54,6 @@ workflows:
   publish-release:
     jobs:
       - release
-    filters:
-      branches:
-        - ci
+        filters:
+          branches:
+            - ci
