@@ -10,6 +10,7 @@ jobs:
             git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
             cd arch-yuzu-mainline
             git checkout ci
+            echo "Executing python script"
             TAG=$(python -u check_new_release.py)
             if [ -z "$TAG" ]; then echo "No release" && exit 1; fi
             git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git ~/yuzu-mainline
