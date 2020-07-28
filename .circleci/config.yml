@@ -72,7 +72,8 @@ workflows:
               only:
                 - ci
       - release-aur:
-          requires: release-github
+          requires:
+            - release-github
           filters:
             branches:
               only:
