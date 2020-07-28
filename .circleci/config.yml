@@ -1,17 +1,17 @@
 version: 2.1
+
+defaults: &defaults
+  working_directory: /tmp/work
+
 jobs:
-  release:
+  release-github:
     docker:
       - image: linuxgamers/arch-yuzu-build
     steps:
       - run:
-          name: Checking for unpublished release
+          name: Publishing release to GitHub
           command: |
-            mkdir -p ~/.ssh
-            echo "${AUR_SSH_KEY}" | tr -d '\r' > ~/.ssh/id_rsa && chmod 700 ~/.ssh/id_rsa
-            ssh-keyscan -H 'aur.archlinux.org' >> ~/.ssh/known_hosts
-            eval "$(ssh-agent -s)"
-            ssh-add ~/.ssh/id_rsa
+            mkdir -p shared
             git config --global user.name "${GIT_USER}"
             git config --global user.email "${GIT_EMAIL}"
             git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
@@ -33,7 +33,25 @@ jobs:
             git commit -m "[RELEASE ${TAG}]"
             git push -q https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git master
             python -u release_github.py
-            cd ..
+            cat "${TAG}" > /tmp/work/shared/tag.txt
+      - persist_to_workspace:
+          root: shared
+          paths:
+            - tag.txt
+
+  release-aur:
+    docker:
+      - image: linuxgamers/arch-yuzu-build
+    steps:
+      - attach_workspace:
+          at: /tmp/work/shared
+      - run:
+          name: Publishing release to AUR
+          command: |
+            git config --global user.name "${GIT_USER}"
+            git config --global user.email "${GIT_EMAIL}"
+            TAG=$(cat shared/tag.txt)
+            echo "${TAG}"
             git clone ssh://aur@aur.archlinux.org/yuzu-mainline-bin.git && cd yuzu-mainline-bin
             wget "https://github.com/linux-gamers/arch-yuzu-mainline/archive/${TAG}.tar.gz"
             VERSION=$(echo ${TAG} | cut -d- -f2)
@@ -48,7 +66,13 @@ jobs:
 workflows:
   publish-release:
     jobs:
-      - release:
+      - release-github:
+          filters:
+            branches:
+              only:
+                - ci
+      - release-aur:
+          requires: release-github
           filters:
             branches:
               only:
