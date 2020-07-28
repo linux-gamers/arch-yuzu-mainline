@@ -14,7 +14,7 @@ payload = {
 }
 print('Submitting release: {}'.format(payload))
 res = requests.post('https://{}@api.github.com/repos/linux-gamers/arch-yuzu-mainline/releases'.format(os.environ['GITHUB_TOKEN']),
-                    data=json.dumps(payload))
+                    json=payload)
 
 if res.status_code not in (200, 201, 202):
     print('Bad GitHub release response: {} - {}'.format(res.status_code, res.text))
