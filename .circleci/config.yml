@@ -7,6 +7,11 @@ jobs:
       - run:
           name: Checking for unpublished release
           command: |
+            mkdir -p ~/.ssh
+            echo "${AUR_SSH_KEY}" | tr -d '\r' > ~/.ssh/id_rsa && chmod 700 ~/.ssh/id_rsa
+            ssh-keyscan -H 'aur.archlinux.org' >> ~/.ssh/known_hosts
+            eval "$(ssh-agent -s)"
+            ssh-add ~/.ssh/id_rsa
             git config --global user.name "${GIT_USER}"
             git config --global user.email "${GIT_EMAIL}"
             git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
@@ -27,19 +32,8 @@ jobs:
             git add .
             git commit -m "[RELEASE ${TAG}]"
             git push -q https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git master
-            curl -X POST -H "Content-Type: application/json" -d "{ \
-            		\"tag_name\": \"${TAG}\", \
-              		\"target_commitish\": \"master\", \
-              		\"name\": \"${TAG}\", \
-              		\"draft\": false, \
-                    \"body\": "${CIRCLE_BUILD_URL}", \
-              		\"prerelease\": false \
-            	}" https://${GITHUB_TOKEN}@api.github.com/repos/linux-gamers/arch-yuzu-mainline/releases
-            cd .. && mkdir -p ~/.ssh
-            echo "$AUR_SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa && chmod 700 ~/.ssh/id_rsa
-            ssh-keyscan -H 'aur.archlinux.org' >> ~/.ssh/known_hosts
-            eval "$(ssh-agent -s)"
-            ssh-add ~/.ssh/id_rsa
+            python -u release_github.py
+            cd ..
             git clone ssh://aur@aur.archlinux.org/yuzu-mainline-bin.git && cd yuzu-mainline-bin
             wget "https://github.com/linux-gamers/arch-yuzu-mainline/archive/${TAG}.tar.gz"
             VERSION=$(echo ${TAG} | cut -d- -f2)
