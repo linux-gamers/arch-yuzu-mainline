@@ -32,6 +32,7 @@ jobs:
             git add .
             git commit -m "[RELEASE ${TAG}]"
             git push -q https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git master
+            git checkout ci
             python -u release_github.py
             cat "${TAG}" > /tmp/work/shared/tag.txt
       - persist_to_workspace:
