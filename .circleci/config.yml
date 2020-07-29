@@ -14,6 +14,7 @@ jobs:
             cd arch-yuzu-mainline
             git checkout ci
             export TAG=$(python -u .circleci/check_new_release.py)
+            echo "TAG = ${TAG}"
             if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; fi
             echo ">> New version available: ${TAG}"
             mkdir -p /root/project/shared
@@ -36,6 +37,8 @@ jobs:
             git config --global user.email "${GIT_EMAIL}"
             export TAG=$(cat shared/tag.txt)
             echo "Publishing release: ${TAG}"
+            ssh-keyscan -H 'aur.archlinux.org' >> ~/.ssh/known_hosts
+            eval "$(ssh-agent -s)"
             git clone ssh://aur@aur.archlinux.org/yuzu-mainline-bin.git && cd yuzu-mainline-bin
             wget "https://github.com/linux-gamers/arch-yuzu-mainline/archive/${TAG}.tar.gz"
             VERSION=$(echo ${TAG} | cut -d- -f2)
