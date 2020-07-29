@@ -15,6 +15,7 @@ jobs:
             git checkout ci
             export TAG=$(python -u .circleci/check_new_release.py)
             if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; fi
+            echo ">> New version available: ${TAG}"
             mkdir -p /root/project/shared
             echo "${TAG}" > /root/project/shared/tag.txt
       - persist_to_workspace:
