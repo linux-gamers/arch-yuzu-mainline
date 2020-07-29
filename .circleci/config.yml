@@ -8,14 +8,26 @@ jobs:
       - run:
           name: Publishing release to GitHub
           command: |
-            echo "$(pwd)"
+            git config --global user.name "${GIT_USER}"
+            git config --global user.email "${GIT_EMAIL}"
+            git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
+            cd arch-yuzu-mainline
+            git checkout ci
+            export TAG=$(python -u .circleci/check_new_release.py)
+            if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; fi
+            mkdir -p /root/project/shared
+            echo "${TAG}" > /root/project/shared/tag.txt
+      - persist_to_workspace:
+          root: shared
+          paths:
+            - tag.txt
 
   release-aur:
     docker:
       - image: linuxgamers/arch-yuzu-build
     steps:
       - attach_workspace:
-          at: /tmp/work/shared
+          at: /root/project/shared
       - run:
           name: Publishing release to AUR
           command: |
@@ -38,6 +50,13 @@ workflows:
   publish-release:
     jobs:
       - release-github:
+          filters:
+            branches:
+              only:
+                - ci
+      - release-aur:
+          requires:
+            - release-github
           filters:
             branches:
               only:
