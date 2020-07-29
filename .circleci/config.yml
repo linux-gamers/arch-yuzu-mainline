@@ -17,7 +17,21 @@ jobs:
             export TAG=$(python -u .circleci/check_new_release.py)
             echo "TAG = ${TAG}"
             if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; fi
-            echo ">> New version available: ${TAG}"
+            cd ..
+            git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git
+            cd yuzu-mainline
+            git checkout -b "${TAG}" && mkdir build && cd build
+            cmake .. -GNinja && ninja -j4
+            cd ../../arch-yuzu-mainline && git checkout master
+            /bin/cp ../yuzu-mainline/build/bin/yuzu .
+            /bin/cp ../yuzu-mainline/build/bin/yuzu-cmd .
+            /bin/cp ../yuzu-mainline/dist/yuzu.desktop .
+            /bin/cp ../yuzu-mainline/dist/yuzu.svg .
+            git add .
+            git commit -m "[RELEASE ${TAG}]"
+            git push -q https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git master
+            git checkout ci
+            python -u .circleci/release_github.py
             mkdir -p /home/linuxgamers/project/shared
             echo "${TAG}" > /home/linuxgamers/project/shared/tag.txt
       - persist_to_workspace:
