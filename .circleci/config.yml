@@ -1,8 +1,5 @@
 version: 2.1
 
-defaults: &defaults
-  working_directory: /tmp/work
-
 jobs:
   release-github:
     docker:
@@ -11,31 +8,11 @@ jobs:
       - run:
           name: Publishing release to GitHub
           command: |
+            echo "$(pwd)"
             mkdir -p shared
             git config --global user.name "${GIT_USER}"
             git config --global user.email "${GIT_EMAIL}"
-            git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
-            cd arch-yuzu-mainline
-            git checkout ci
-            export TAG=$(python -u .circleci/check_new_release.py)
-            if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; fi
-            echo ">> New version available: ${TAG}"
-            cd ..
-            git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git
-            cd yuzu-mainline
-            git checkout -b "${TAG}" && mkdir build && cd build
-            cmake .. -GNinja && ninja -j4
-            cd ../../arch-yuzu-mainline && git checkout master
-            /bin/cp ../yuzu-mainline/build/bin/yuzu .
-            /bin/cp ../yuzu-mainline/build/bin/yuzu-cmd .
-            /bin/cp ../yuzu-mainline/dist/yuzu.desktop .
-            /bin/cp ../yuzu-mainline/dist/yuzu.svg .
-            git add .
-            git commit -m "[RELEASE ${TAG}]"
-            git push -q https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git master
-            git checkout ci
-            python -u .circleci/release_github.py
-            echo "${TAG}" > /tmp/work/shared/tag.txt
+            echo "${TAG}" > shared/tag.txt
       - persist_to_workspace:
           root: shared
           paths:
@@ -46,7 +23,7 @@ jobs:
       - image: linuxgamers/arch-yuzu-build
     steps:
       - attach_workspace:
-          at: /tmp/work/shared
+          at: shared
       - run:
           name: Publishing release to AUR
           command: |
