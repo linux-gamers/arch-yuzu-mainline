@@ -3,27 +3,19 @@ version: 2.1
 jobs:
   release-github:
     docker:
-      - image: linuxgamers/arch-yuzu-build
+      - image: circleci/python
     steps:
       - run:
           name: Publishing release to GitHub
           command: |
             echo "$(pwd)"
-            mkdir -p shared
-            git config --global user.name "${GIT_USER}"
-            git config --global user.email "${GIT_EMAIL}"
-            echo "${TAG}" > shared/tag.txt
-      - persist_to_workspace:
-          root: shared
-          paths:
-            - tag.txt
 
   release-aur:
     docker:
       - image: linuxgamers/arch-yuzu-build
     steps:
       - attach_workspace:
-          at: shared
+          at: /tmp/work/shared
       - run:
           name: Publishing release to AUR
           command: |
@@ -46,13 +38,6 @@ workflows:
   publish-release:
     jobs:
       - release-github:
-          filters:
-            branches:
-              only:
-                - ci
-      - release-aur:
-          requires:
-            - release-github
           filters:
             branches:
               only:
