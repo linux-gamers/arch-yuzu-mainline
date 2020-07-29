@@ -27,6 +27,7 @@ jobs:
   release-aur:
     docker:
       - image: linuxgamers/arch-yuzu-build
+        user: linuxgamers
     steps:
       - attach_workspace:
           at: /root/project/shared
