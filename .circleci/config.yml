@@ -11,8 +11,15 @@ jobs:
           command: |
             git config --global user.name "${GIT_USER}"
             git config --global user.email "${GIT_EMAIL}"
-            echo "$(pwd)"
-            exit 1
+            git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
+            cd arch-yuzu-mainline
+            git checkout ci
+            export TAG=$(python -u .circleci/check_new_release.py)
+            echo "TAG = ${TAG}"
+            if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; fi
+            echo ">> New version available: ${TAG}"
+            mkdir -p /home/linuxgamers/project/shared
+            echo "${TAG}" > /home/linuxgamers/project/shared/tag.txt
       - persist_to_workspace:
           root: shared
           paths:
@@ -24,7 +31,7 @@ jobs:
         user: linuxgamers
     steps:
       - attach_workspace:
-          at: /root/project/shared
+          at: /home/linuxgamers/project/shared
       - add_ssh_keys:
           fingerprints:
             - "11:77:57:1a:21:81:c1:bd:9c:29:dc:8e:48:b8:bc:d8"
