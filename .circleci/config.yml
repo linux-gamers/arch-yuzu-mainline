@@ -38,6 +38,9 @@ jobs:
           command: |
             git config --global user.name "${GIT_USER}"
             git config --global user.email "${GIT_EMAIL}"
+            mkdir -p ~/.ssh
+            touch ~/.ssh/known_hosts
+            ssh-keyscan -H 'aur.archlinux.org' >> ~/.ssh/known_hosts
             export TAG=$(cat shared/tag.txt)
             echo "Publishing release: ${TAG}"
             git clone ssh://aur@aur.archlinux.org/yuzu-mainline-bin.git && cd yuzu-mainline-bin
