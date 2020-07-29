@@ -4,21 +4,15 @@ jobs:
   release-github:
     docker:
       - image: linuxgamers/arch-yuzu-build
+        user: linuxgamers
     steps:
       - run:
           name: Publishing release to GitHub
           command: |
             git config --global user.name "${GIT_USER}"
             git config --global user.email "${GIT_EMAIL}"
-            git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
-            cd arch-yuzu-mainline
-            git checkout ci
-            export TAG=$(python -u .circleci/check_new_release.py)
-            echo "TAG = ${TAG}"
-            if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; fi
-            echo ">> New version available: ${TAG}"
-            mkdir -p /root/project/shared
-            echo "${TAG}" > /root/project/shared/tag.txt
+            echo "$(pwd)"
+            exit 1
       - persist_to_workspace:
           root: shared
           paths:
