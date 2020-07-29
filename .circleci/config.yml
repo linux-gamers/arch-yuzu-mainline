@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   release-github:
     docker:
-      - image: circleci/python
+      - image: linuxgamers/arch-yuzu-build
     steps:
       - run:
           name: Publishing release to GitHub
