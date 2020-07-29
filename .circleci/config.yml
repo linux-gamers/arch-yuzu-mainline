@@ -17,8 +17,9 @@ jobs:
             git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
             cd arch-yuzu-mainline
             git checkout ci
-            export TAG=$(python -u check_new_release.py)
+            export TAG=$(python -u .circleci/check_new_release.py)
             if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; fi
+            echo ">> New version available: ${TAG}"
             cd ..
             git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git
             cd yuzu-mainline
@@ -33,7 +34,7 @@ jobs:
             git commit -m "[RELEASE ${TAG}]"
             git push -q https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git master
             git checkout ci
-            python -u release_github.py
+            python -u .circleci/release_github.py
             cat "${TAG}" > /tmp/work/shared/tag.txt
       - persist_to_workspace:
           root: shared
