@@ -30,15 +30,14 @@ jobs:
     steps:
       - attach_workspace:
           at: /root/project/shared
+      - add_ssh_keys:
+          fingerprints:
+            - "11:77:57:1a:21:81:c1:bd:9c:29:dc:8e:48:b8:bc:d8"
       - run:
           name: Publishing release to AUR
           command: |
             git config --global user.name "${GIT_USER}"
             git config --global user.email "${GIT_EMAIL}"
-            mkdir -p ~/.ssh
-            touch ~/.ssh/known_hosts
-            ssh-keyscan -H 'aur.archlinux.org' >> ~/.ssh/known_hosts
-            eval "$(ssh-agent -s)"
             export TAG=$(cat shared/tag.txt)
             echo "Publishing release: ${TAG}"
             git clone ssh://aur@aur.archlinux.org/yuzu-mainline-bin.git && cd yuzu-mainline-bin
