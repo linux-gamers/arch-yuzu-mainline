@@ -35,7 +35,7 @@ jobs:
             git push -q https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git master
             git checkout ci
             python -u .circleci/release_github.py
-            cat "${TAG}" > /tmp/work/shared/tag.txt
+            echo "${TAG}" > /tmp/work/shared/tag.txt
       - persist_to_workspace:
           root: shared
           paths:
@@ -53,7 +53,7 @@ jobs:
             git config --global user.name "${GIT_USER}"
             git config --global user.email "${GIT_EMAIL}"
             export TAG=$(cat shared/tag.txt)
-            echo "${TAG}"
+            echo "Publishing release: ${TAG}"
             git clone ssh://aur@aur.archlinux.org/yuzu-mainline-bin.git && cd yuzu-mainline-bin
             wget "https://github.com/linux-gamers/arch-yuzu-mainline/archive/${TAG}.tar.gz"
             VERSION=$(echo ${TAG} | cut -d- -f2)
