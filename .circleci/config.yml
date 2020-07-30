@@ -7,7 +7,7 @@ jobs:
         user: linuxgamers
     steps:
       - run:
-          name: Checking available release
+          name: "Checking available release"
           command: |
             git clone -b ci --depth 1 https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
             cd arch-yuzu-mainline
@@ -32,7 +32,7 @@ jobs:
       - attach_workspace:
           at: /home/linuxgamers/project/shared
       - run:
-          name: Commiting binaries to GitHub
+          name: "Commiting binaries to GitHub"
           command: |
             git config user.name "${GIT_USER}"
             git config user.email "${GIT_EMAIL}"
@@ -67,7 +67,7 @@ jobs:
       - attach_workspace:
           at: /home/linuxgamers/project/shared
       - run:
-          name: Publishing release to GitHub
+          name: "Publishing release to GitHub"
           command: |
             export TAG=$(cat shared/tag.txt)
             python -u shared/release_github.py
@@ -89,7 +89,7 @@ jobs:
           fingerprints:
             - "11:77:57:1a:21:81:c1:bd:9c:29:dc:8e:48:b8:bc:d8"
       - run:
-          name: Publishing release to AUR
+          name: "Publishing release to AUR"
           command: |
             git config --global user.name "${GIT_USER}"
             git config --global user.email "${GIT_EMAIL}"
