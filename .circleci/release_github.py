@@ -7,7 +7,6 @@ payload = {
     'target_commitish': 'master',
     'name': os.environ['TAG'],
     'draft': False,
-    'body': os.environ.get('CIRCLE_BUILD_URL', ''),
     'prerelease': False
 
 }
