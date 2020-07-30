@@ -6,17 +6,17 @@ jobs:
       - image: linuxgamers/scripting
         user: linuxgamers
     steps:
-      - run:
-          name: "Checking available release"
-          command: |
-            git clone -b ci --depth 1 https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
-            cd arch-yuzu-mainline
-            TAG=$(python -u .circleci/check_new_release.py)
-            if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; else echo "New release available: ${TAG}"; fi
-            mkdir -p /home/linuxgamers/project/shared
-            echo "${TAG}" > /home/linuxgamers/project/shared/tag.txt
-            /bin/cp .circleci/check_new_release.py /home/linuxgamers/project/shared/
-            /bin/cp .circleci/release_github.py /home/linuxgamers/project/shared/
+        - run:
+            name: Checking available release
+            command: |
+              git clone -b ci --depth 1 https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
+              cd arch-yuzu-mainline
+              TAG=$(python -u .circleci/check_new_release.py)
+              if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; else echo "New release available: ${TAG}"; fi
+              mkdir -p /home/linuxgamers/project/shared
+              echo "${TAG}" > /home/linuxgamers/project/shared/tag.txt
+              /bin/cp .circleci/check_new_release.py /home/linuxgamers/project/shared/
+              /bin/cp .circleci/release_github.py /home/linuxgamers/project/shared/
         - persist_to_workspace:
             root: shared
             paths:
@@ -29,29 +29,29 @@ jobs:
       - image: linuxgamers/arch-yuzu-build
         user: linuxgamers
     steps:
-      - attach_workspace:
-          at: /home/linuxgamers/project/shared
-      - run:
-          name: "Commiting binaries to GitHub"
-          command: |
-            git config user.name "${GIT_USER}"
-            git config user.email "${GIT_EMAIL}"
-            export TAG=$(cat shared/tag.txt)
-            echo "Commiting binaries of: ${TAG}"
-            git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git
-            cd yuzu-mainline
-            git checkout -b "${TAG}" && mkdir build && cd build
-            cmake .. -GNinja && ninja -j4
-            cd ../../ && git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
-            cd arch-yuzu-mainline && git checkout master
-            /bin/cp ../yuzu-mainline/build/bin/yuzu dist/
-            /bin/cp ../yuzu-mainline/build/bin/yuzu-cmd dist/
-            /bin/cp ../yuzu-mainline/dist/yuzu.desktop dist/
-            /bin/cp ../yuzu-mainline/dist/yuzu.svg dist/
-            /bin/cp ../yuzu-mainline/license.txt dist/
-            git add .
-            git commit -m "[RELEASE ${TAG}]"
-            git push -q https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git master
+        - attach_workspace:
+            at: /home/linuxgamers/project/shared
+        - run:
+            name: Commiting binaries to GitHub
+            command: |
+              git config user.name "${GIT_USER}"
+              git config user.email "${GIT_EMAIL}"
+              export TAG=$(cat shared/tag.txt)
+              echo "Commiting binaries of: ${TAG}"
+              git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git
+              cd yuzu-mainline
+              git checkout -b "${TAG}" && mkdir build && cd build
+              cmake .. -GNinja && ninja -j4
+              cd ../../ && git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
+              cd arch-yuzu-mainline && git checkout master
+              /bin/cp ../yuzu-mainline/build/bin/yuzu dist/
+              /bin/cp ../yuzu-mainline/build/bin/yuzu-cmd dist/
+              /bin/cp ../yuzu-mainline/dist/yuzu.desktop dist/
+              /bin/cp ../yuzu-mainline/dist/yuzu.svg dist/
+              /bin/cp ../yuzu-mainline/license.txt dist/
+              git add .
+              git commit -m "[RELEASE ${TAG}]"
+              git push -q https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git master
         - persist_to_workspace:
             root: shared
             paths:
@@ -66,11 +66,13 @@ jobs:
     steps:
       - attach_workspace:
           at: /home/linuxgamers/project/shared
+
       - run:
-          name: "Publishing release to GitHub"
+          name: Publishing release to GitHub
           command: |
             export TAG=$(cat shared/tag.txt)
             python -u shared/release_github.py
+
       - persist_to_workspace:
           root: shared
           paths:
@@ -85,11 +87,12 @@ jobs:
     steps:
       - attach_workspace:
           at: /home/linuxgamers/project/shared
+
       - add_ssh_keys:
           fingerprints:
             - "11:77:57:1a:21:81:c1:bd:9c:29:dc:8e:48:b8:bc:d8"
       - run:
-          name: "Publishing release to AUR"
+          name: Publishing release to AUR
           command: |
             git config --global user.name "${GIT_USER}"
             git config --global user.email "${GIT_EMAIL}"
@@ -116,6 +119,7 @@ workflows:
             branches:
               only:
                 - ci
+
       - commit-github:
           requires:
             - check-release
@@ -123,6 +127,7 @@ workflows:
             branches:
               only:
                 - ci
+
       - release-github:
           requires:
             - commit-github
