@@ -22,10 +22,12 @@ WORKDIR /home/linuxgamers
 
 RUN git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git ~/arch-yuzu-mainline && \
 	cd arch-yuzu-mainline && \
-    /bin/cp ~/yuzu-mainline/build/bin/yuzu . && \
-	/bin/cp ~/yuzu-mainline/build/bin/yuzu-cmd . && \
-	/bin/cp ~/yuzu-mainline/dist/yuzu.desktop . && \
-	/bin/cp ~/yuzu-mainline/dist/yuzu.svg . && \
+	mkdir -p dist && \
+    /bin/cp ~/yuzu-mainline/build/bin/yuzu dist/ && \
+	/bin/cp ~/yuzu-mainline/build/bin/yuzu-cmd dist/ && \
+	/bin/cp ~/yuzu-mainline/dist/yuzu.desktop dist/ && \
+	/bin/cp ~/yuzu-mainline/dist/yuzu.svg dist/ && \
+	/bin/cp ~/yuzu-mainline/license.txt dist/ && \
 	git config user.name "${GIT_USER}" && \
 	git config user.email "${GIT_EMAIL}" && \
 	git add . && \
