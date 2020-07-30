@@ -112,26 +112,41 @@ jobs:
             git push
 
 workflows:
-  build:
-    jobs:
-      - check-release:
+  build-03:
+    triggers:
+      - schedule:
+          cron: "0 3 * * *"
           filters:
             branches:
               only:
                 - ci
-
+    jobs:
+      - check-release
       - commit-github:
           requires:
             - check-release
-          filters:
-            branches:
-              only:
-                - ci
-
       - release-github:
           requires:
             - commit-github
+      - release-aur:
+          requires:
+            - commit-github
+  build-15:
+    triggers:
+      - schedule:
+          cron: "0 15 * * *"
           filters:
             branches:
               only:
                 - ci
+    jobs:
+      - check-release
+      - commit-github:
+          requires:
+            - check-release
+      - release-github:
+          requires:
+            - commit-github
+      - release-aur:
+          requires:
+            - commit-github
