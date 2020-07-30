@@ -34,8 +34,8 @@ jobs:
         - run:
             name: Commiting binaries to GitHub
             command: |
-              git config user.name "${GIT_USER}"
-              git config user.email "${GIT_EMAIL}"
+              git config --global user.name "${GIT_USER}"
+              git config --global user.email "${GIT_EMAIL}"
               export TAG=$(cat shared/tag.txt)
               echo "Commiting binaries of: ${TAG}"
               git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git
