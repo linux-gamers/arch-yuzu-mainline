@@ -11,7 +11,7 @@ jobs:
             command: |
               git clone -b ci --depth 1 https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
               cd arch-yuzu-mainline
-              TAG=$(python -u .circleci/check_new_release.py)
+              TAG=$(python3 -u .circleci/check_new_release.py)
               if [ -z "$TAG" ]; then echo "No new release to publish" && exit 1; else echo "New release available: ${TAG}"; fi
               mkdir -p /home/linuxgamers/project/shared
               echo "${TAG}" > /home/linuxgamers/project/shared/tag.txt
@@ -71,7 +71,7 @@ jobs:
           name: Publishing release to GitHub
           command: |
             export TAG=$(cat shared/tag.txt)
-            python -u shared/release_github.py
+            python3 -u shared/release_github.py
 
       - persist_to_workspace:
           root: shared
