@@ -106,6 +106,7 @@ jobs:
             sed -i -E "s/sha512sums=.+/sha512sums=\(\'${SHA}\'\)/" PKGBUILD
             VERSION=$(echo ${TAG} | cut -d- -f2)
             sed -i -E "s/_pkgver=.+/_pkgver=${VERSION}/" PKGBUILD
+            sed -i -E "s/pkgrel=.+/pkgrel=1/" PKGBUILD
             ./gensrc.sh
             git commit -am "${TAG}"
             echo "Pushing release ${TAG} to AUR"
@@ -130,7 +131,7 @@ workflows:
             - commit-github
       - release-aur:
           requires:
-            - commit-github
+            - release-github
   build-15:
     triggers:
       - schedule:
@@ -149,4 +150,4 @@ workflows:
             - commit-github
       - release-aur:
           requires:
-            - commit-github
+            - release-github
