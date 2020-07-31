@@ -98,6 +98,7 @@ jobs:
             git config --global user.email "${GIT_EMAIL}"
             mkdir -p ~/.ssh
             touch ~/.ssh/known_hosts
+            eval "$(ssh-agent -s)"
             ssh-keyscan -H 'aur.archlinux.org' >> ~/.ssh/known_hosts
             export TAG=$(cat shared/tag.txt)
             git clone ssh://aur@aur.archlinux.org/yuzu-mainline-bin.git && cd yuzu-mainline-bin
