@@ -85,9 +85,6 @@ jobs:
       - image: linuxgamers/scripting
         user: linuxgamers
     steps:
-      - attach_workspace:
-          at: /home/linuxgamers/project/shared
-
       - add_ssh_keys:
           fingerprints:
             - "11:77:57:1a:21:81:c1:bd:9c:29:dc:8e:48:b8:bc:d8"
@@ -102,53 +99,15 @@ jobs:
             ssh-keyscan -H 'aur.archlinux.org' >> ~/.ssh/known_hosts
             export TAG=$(cat shared/tag.txt)
             git clone ssh://aur@aur.archlinux.org/yuzu-mainline-bin.git && cd yuzu-mainline-bin
-            wget "https://github.com/linux-gamers/arch-yuzu-mainline/archive/${TAG}.tar.gz"
-            SHA=$(sha512sum ${TAG}.tar.gz | grep -Eo "(\w+)\s" | cut -d" " -f1)
-            sed -i -E "s/sha512sums=.+/sha512sums=\(\'${SHA}\'\)/" PKGBUILD
-            VERSION=$(echo ${TAG} | cut -d- -f2)
-            sed -i -E "s/_pkgver=.+/_pkgver=${VERSION}/" PKGBUILD
-            sed -i -E "s/pkgrel=.+/pkgrel=1/" PKGBUILD
+            sed -i -E "s/pkgrel=.+/pkgrel=2/" PKGBUILD
             ./gensrc.sh
-            git commit -am "${TAG}"
-            echo "Pushing release ${TAG} to AUR"
-            git push
+            git status
 
 workflows:
   build-03:
-    triggers:
-      - schedule:
-          cron: "0 3 * * *"
+    jobs:
+      - release-aur:
           filters:
             branches:
               only:
                 - ci
-    jobs:
-      - check-release
-      - commit-github:
-          requires:
-            - check-release
-      - release-github:
-          requires:
-            - commit-github
-      - release-aur:
-          requires:
-            - release-github
-  build-15:
-    triggers:
-      - schedule:
-          cron: "0 15 * * *"
-          filters:
-            branches:
-              only:
-                - ci
-    jobs:
-      - check-release
-      - commit-github:
-          requires:
-            - check-release
-      - release-github:
-          requires:
-            - commit-github
-      - release-aur:
-          requires:
-            - release-github
