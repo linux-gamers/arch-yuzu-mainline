@@ -123,16 +123,32 @@ workflows:
               only:
                 - ci
     jobs:
-      - check-release
+      - check-release:
+          filters:
+            branches:
+              only:
+                - ci
       - commit-github:
           requires:
             - check-release
+          filters:
+            branches:
+              only:
+                - ci
       - release-github:
           requires:
             - commit-github
+          filters:
+            branches:
+              only:
+                - ci
       - release-aur:
           requires:
             - release-github
+          filters:
+            branches:
+              only:
+                - ci
   build-15:
     triggers:
       - schedule:
@@ -142,13 +158,29 @@ workflows:
               only:
                 - ci
     jobs:
-      - check-release
+      - check-release:
+          filters:
+            branches:
+              only:
+                - ci
       - commit-github:
           requires:
             - check-release
+          filters:
+            branches:
+              only:
+                - ci
       - release-github:
           requires:
             - commit-github
+          filters:
+            branches:
+              only:
+                - ci
       - release-aur:
           requires:
             - release-github
+          filters:
+            branches:
+              only:
+                - ci
