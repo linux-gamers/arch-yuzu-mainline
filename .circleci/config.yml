@@ -1,6 +1,15 @@
 version: 2.1
 
 jobs:
+  trigger-build-image:
+    docker:
+      - image: linuxgamers/scripting
+        user: linuxgamers
+    steps:
+      - run:
+          name: Triggering base Docker image build
+          command: curl -X POST ${DOCKERHUB_TRIGGER_URL}
+
   check-release:
     docker:
       - image: linuxgamers/scripting
@@ -41,8 +50,8 @@ jobs:
               git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git
               cd yuzu-mainline
               git checkout -b "${TAG}" && mkdir build && cd build
-              cmake .. -GNinja && ninja -j4
-              cd ../../ && git clone https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
+              cmake .. -GNinja -DYUZU_USE_QT_WEB_ENGINE=ON && ninja -j4
+              cd ../../ && git clone -b master --depth 1 https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
               cd arch-yuzu-mainline && git checkout master
               /bin/cp ../yuzu-mainline/build/bin/yuzu dist/
               /bin/cp ../yuzu-mainline/build/bin/yuzu-cmd dist/
@@ -184,3 +193,9 @@ workflows:
             branches:
               only:
                 - ci
+  build-image:
+    triggers:
+      - schedule:
+          cron: "0 6 1 * *"
+    jobs:
+      - trigger-build-image
