@@ -56,6 +56,7 @@ RUN git config user.name "${GIT_USER}" && git config user.email "${GIT_EMAIL}" &
 	wget "https://github.com/linux-gamers/arch-yuzu-mainline/archive/${TAG}.tar.gz" && \
 	VERSION=$(echo ${TAG} | cut -d- -f2) && \
 	sed -i -E "s/_pkgver=.+/_pkgver=${VERSION}/" PKGBUILD && \
+	sed -i -E "s/pkgrel=.+/pkgrel=1/" PKGBUILD && \
 	SHA=$(sha512sum ${TAG}.tar.gz | grep -Eo "(\w+)\s" | cut -d" " -f1)  && \
 	sed -i -E "s/sha512sums=.+/sha512sums=\(\'${SHA}\'\)/" PKGBUILD && \
 	./gensrc.sh && \
