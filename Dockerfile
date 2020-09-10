@@ -15,7 +15,7 @@ RUN git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu
 WORKDIR /home/linuxgamers/yuzu-mainline
 
 RUN git checkout -b "${TAG}" && mkdir build && cd build && \ 
-	cmake .. -GNinja && \
+	cmake .. -GNinja -DYUZU_USE_QT_WEB_ENGINE=ON && \
 	ninja -j4
 
 WORKDIR /home/linuxgamers
