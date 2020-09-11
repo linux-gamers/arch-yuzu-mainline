@@ -161,7 +161,7 @@ workflows:
   build-15:
     triggers:
       - schedule:
-          cron: "26 17 * * *"
+          cron: "0 15 * * *"
           filters:
             branches:
               only:
