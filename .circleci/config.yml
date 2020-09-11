@@ -161,7 +161,7 @@ workflows:
   build-15:
     triggers:
       - schedule:
-          cron: "0 15 * * *"
+          cron: "26 17 * * *"
           filters:
             branches:
               only:
@@ -197,5 +197,13 @@ workflows:
     triggers:
       - schedule:
           cron: "0 6 1 * *"
+          filters:
+            branches:
+              only:
+                - ci
     jobs:
-      - trigger-build-image
+      - trigger-build-image:
+          filters:
+            branches:
+              only:
+                - ci
