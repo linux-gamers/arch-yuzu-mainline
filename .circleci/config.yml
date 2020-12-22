@@ -50,6 +50,7 @@ jobs:
               git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git
               cd yuzu-mainline
               git checkout -b "${TAG}" && mkdir build && cd build
+              unset CI
               cmake .. -GNinja -DYUZU_USE_QT_WEB_ENGINE=ON && ninja -j4
               cd ../../ && git clone -b master --depth 1 https://${GITHUB_TOKEN}@github.com/linux-gamers/arch-yuzu-mainline.git
               cd arch-yuzu-mainline && git checkout master
