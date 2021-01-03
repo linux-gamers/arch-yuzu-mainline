@@ -6,8 +6,6 @@ ARG GIT_EMAIL
 ARG GITHUB_TOKEN
 ARG AUR_SSH_KEY
 
-RUN useradd -ms /bin/bash linuxgamers
-
 USER linuxgamers
 
 RUN git clone --recursive -b "mainline-${TAG}" --depth 1 https://github.com/yuzu-emu/yuzu-mainline.git ~/yuzu-mainline
